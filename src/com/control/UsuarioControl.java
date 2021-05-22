@@ -2,8 +2,13 @@ package com.control;
 
 import java.util.List;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import com.entidad.Roles;
 import com.entidad.Usuario;
@@ -20,46 +25,33 @@ public class UsuarioControl {
 	
 	@GET
 	public List<Usuario> leerTodos() {
-		
-		String NOMBRE = "JUAN";
-		String APELLIDO = "PEREZ";
-		String DOCUMENTO = "12345678";
-		String EMAIL = "admin@utec";
-		String NICKNAME = "ADMIN";
-		String CLAVE = "1234";
-		
-		Usuario usuario = new Usuario();
-		usuario.setNombre(NOMBRE);
-		usuario.setApellido(APELLIDO);
-		usuario.setDocumento(DOCUMENTO);
-		usuario.setEmail(EMAIL);
-		usuario.setNickname(NICKNAME);
-		usuario.setClave(CLAVE);
-		usuario.setRol(Roles.ADMINISTRADOR);
-		
-		boolean creado = usuario_.getBean().create(usuario);
-		
-		NOMBRE = "PEDRO";
-		APELLIDO = "GONZALES";
-		DOCUMENTO = "12345679";
-		EMAIL = "experto@utec";
-		NICKNAME = "EXPERTO";
-		CLAVE = "1111";
-		
-		usuario = new Usuario();
-		usuario.setNombre(NOMBRE);
-		usuario.setApellido(APELLIDO);
-		usuario.setDocumento(DOCUMENTO);
-		usuario.setEmail(EMAIL);
-		usuario.setNickname(NICKNAME);
-		usuario.setClave(CLAVE);
-		usuario.setRol(Roles.EXPERTO);
-		
-		creado = usuario_.getBean().create(usuario);
-		
 		List<Usuario> usuarios = usuario_.getBean().readAll();
 		
 		return usuarios;
+	}
+	
+	@POST
+	public Response crearUno(Usuario usuario) {
+		boolean creado = usuario_.getBean().create(usuario);
+		
+		if(creado) {
+			Status status = Status.CREATED;
+			return Response.status(status).entity(usuario).build();
+		}
+		Status status = Status.INTERNAL_SERVER_ERROR;
+		return Response.status(status).build();
+	}
+	
+	@DELETE
+	@Path("/{id}")
+	public Response borrarUno(@PathParam("id") Long id) {
+		boolean borrado = usuario_.getBean().delete(id);
+		if(borrado) {
+			Status status = Status.NO_CONTENT;
+			return Response.status(status).build();
+		}
+		Status status = Status.INTERNAL_SERVER_ERROR;
+		return Response.status(status).build();
 	}
 
 }
